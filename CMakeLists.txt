@@ -203,8 +203,17 @@ if(ENABLE_IPV6 AND NOT WIN32)
   endif()
 endif()
 
-option(ENABLE_MANUAL "to provide the built-in manual" ON)
-unset(USE_MANUAL CACHE) # TODO: cache NROFF/NROFF_MANOPT/USE_MANUAL vars?
+# Required for building manual, docs, tests
+find_package(Perl)
+if(NOT PERL_FOUND)
+    message("Perl not found. Tests and Documentation will be disabled")
+    set(ENABLE_MANUAL OFF)
+    set(BUILD_TESTING OFF)
+else()
+    option(ENABLE_MANUAL "to provide the built-in manual" ON)
+    unset(USE_MANUAL CACHE) # TODO: cache NROFF/NROFF_MANOPT/USE_MANUAL vars?
+endif()
+    
 if(ENABLE_MANUAL)
   find_program(NROFF NAMES gnroff nroff)
   if(NROFF)
@@ -233,8 +242,7 @@ if(ENABLE_MANUAL)
     message(WARNING "Found no *nroff program")
   endif()
 endif()
-# Required for building manual, docs, tests
-find_package(Perl REQUIRED)
+
 
 # We need ansi c-flags, especially on HP
 set(CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS}")
